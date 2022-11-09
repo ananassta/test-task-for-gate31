@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8" />
+  <title>Test task for GATE31</title>
+  <style>
+    .postsList {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding-left: 15px;
+    }
+    .postsListDiv {
+        width: 268px;
+        margin-right: 15px;
+        margin-top: 15px;
+        border-radius: 10px;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .postTitle {
+        margin-top: 0px;
+        text-overflow: ellipsis;  
+        white-space: nowrap;
+        overflow: hidden;
+        font-weight: bold;
+    }
+    .onCheck {
+        transition: all 500ms ease;
+        background-color: #695c5c;
+        color: #fff;
+        border: 1px solid #695c5c;
+    }
+    .post {
+        transition: all 500ms ease;
+        background-color: #fff;
+        color: black;
+        border: 1px solid black;
+    }
+    .checkBox {
+        cursor: pointer;
+    }
+    .search-form {
+        padding-left: 15px;
+        padding-top: 10px;
+    }
+    .findButton {
+        cursor: pointer;
+    }
+    .searchInfo {
+        /* color: gray; */
+        font-size: small;
+    }
+    @media (max-width: 500px) {
+        .search-form {
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+            text-align: center;
+        }
+    }
+  </style>
+  <script>
+    fetch('https://jsonplaceholder.typicode.com/posts/?_start=0&_limit=7').then(response=>response.json()).then((posts)=>{
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const searchText = urlParams.get('site-search');
+
+        let postsList = document.getElementById("postsList");
+        let searchForm = document.getElementById("search-form");
+        let countPosts = 0;
+        posts.forEach((post)=>{
+            if (searchText === null || searchText === "" || post.title.toUpperCase().indexOf(searchText.toUpperCase()) > -1) {
+                countPosts++;
+                let newPost = document.createElement("div");
+                newPost.className = "postsListDiv";
+                newPost.classList.add("post");
+                let postText = document.createElement("div");
+                let postTitle = document.createElement("p");
+                postTitle.innerText = post.title;
+                postTitle.className = "postTitle"
+                let postBody = document.createElement("p");
+                postBody.innerText = post.body;
+                let postCheckBox = document.createElement("INPUT");
+                postCheckBox.setAttribute("type", "checkbox");
+                postCheckBox.className = "checkBox";
+                postCheckBox.addEventListener("change", function(){
+                    if (postCheckBox.checked) {
+                        newPost.classList.remove("post");
+                        newPost.classList.add("onCheck");
+                    } else {
+                        newPost.classList.remove("onCheck");
+                        newPost.classList.add("post");
+                    }
+                })
+                postText.appendChild(postTitle);
+                postText.appendChild(postBody);
+                newPost.appendChild(postText);
+                newPost.appendChild(postCheckBox);
+                postsList.appendChild(newPost);
+            }
+        })
+        if (searchText !== null) {
+            let newFormElement = document.createElement("label");
+            newFormElement.innerText = "Количество выбранных постов: " + countPosts;
+            newFormElement.className = "searchInfo";
+            searchForm.appendChild(newFormElement);
+        }
+        postsList.className = "postsList";
+    });            
+
+    // form = document.querySelector("#search-form");
+    // form.addEventListener('submit', (event) => { 
+    //     event.preventDefault(); 
+    // });
+    function myFilter() {
+        var input, filter, ul, li, a, i, txtValue;
+        input = document.getElementById('site-search');
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("postsList");
+        li = ul.getElementsByClassName("postsListDiv");
+        input.setAttribute("disabled", true);
+
+        for (i = 0; i < li.length; i++) {
+            a = li[i].getElementsByClassName("postTitle")[0];
+            txtValue = a.textContent || a.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+            } else {
+            li[i].style.display = "none";
+            }
+        }
+    }
+  </script>
+ </head>
+ <body>
+    <form class="search-form" action="" id="search-form">
+    <!-- <form class="search-form" action="" onsubmit="return false;"> -->
+        <label hidden for="site-search">Фильтр</label>
+        <input placeholder="Начните набирать название..." type="search" name="site-search" id="site-search" class="site-search">
+        <input type="submit" value="Найти" onclick="myFilter()" class="findButton">
+    </form>
+    <div id="postsList">
+    </div>
+ </body>
+</html>
